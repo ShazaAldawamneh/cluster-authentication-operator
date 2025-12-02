@@ -178,7 +178,7 @@ func (c *externalOIDCController) generateAuthConfig(auth configv1.Authentication
 func generateJWTForProvider(provider configv1.OIDCProvider, configMapLister corev1listers.ConfigMapLister, featureGates featuregates.FeatureGate, serviceAccountIssuer string) (apiserverv1beta1.JWTAuthenticator, error) {
 	out := apiserverv1beta1.JWTAuthenticator{}
 
-	issuer, err := generateIssuer(provider.Issuer, configMapLister, serviceAccountIssuer)
+	issuer, err := generateIssuer(provider.Issuer, featureGates, configMapLister, serviceAccountIssuer)
 	if err != nil {
 		return apiserverv1beta1.JWTAuthenticator{}, fmt.Errorf("generating issuer for provider %q: %v", provider.Name, err)
 	}
@@ -188,16 +188,18 @@ func generateJWTForProvider(provider configv1.OIDCProvider, configMapLister core
 		return apiserverv1beta1.JWTAuthenticator{}, fmt.Errorf("generating claimMappings for provider %q: %v", provider.Name, err)
 	}
 
-	claimValidationRules, err := generateClaimValidationRules(provider.ClaimValidationRules...)
+	claimValidationRules, err := generateClaimValidationRules(featureGates, provider.ClaimValidationRules...)
 	if err != nil {
 		return apiserverv1beta1.JWTAuthenticator{}, fmt.Errorf("generating claimValidationRules for provider %q: %v", provider.Name, err)
 	}
 
-	userValidationRules, err := generateUserValidationRules(provider.UserValidationRules)
-	if err != nil {
-		return apiserverv1beta1.JWTAuthenticator{}, fmt.Errorf("generating userValidationRules for provider %q: %v", provider.Name, err)
+	var userValidationRules []apiserverv1beta1.UserValidationRule
+	if featureGates.Enabled(features.FeatureGateExternalOIDCWithUpstreamParity) {
+		userValidationRules, err = generateUserValidationRules(featureGates, provider.UserValidationRules)
+		if err != nil {
+			return apiserverv1beta1.JWTAuthenticator{}, fmt.Errorf("generating userValidationRules for provider %q: %v", provider.Name, err)
+		}
 	}
-
 	out.Issuer = issuer
 	out.ClaimMappings = claimMappings
 	out.ClaimValidationRules = claimValidationRules
@@ -206,7 +208,7 @@ func generateJWTForProvider(provider configv1.OIDCProvider, configMapLister core
 	return out, nil
 }
 
-func generateIssuer(issuer configv1.TokenIssuer, configMapLister corev1listers.ConfigMapLister, serviceAccountIssuer string) (apiserverv1beta1.Issuer, error) {
+func generateIssuer(issuer configv1.TokenIssuer, featureGates featuregates.FeatureGate, configMapLister corev1listers.ConfigMapLister, serviceAccountIssuer string) (apiserverv1beta1.Issuer, error) {
 	out := apiserverv1beta1.Issuer{}
 
 	if len(serviceAccountIssuer) > 0 {
@@ -221,9 +223,10 @@ func generateIssuer(issuer configv1.TokenIssuer, configMapLister corev1listers.C
 	for _, audience := range issuer.Audiences {
 		out.Audiences = append(out.Audiences, string(audience))
 	}
-
-	if issuer.DiscoveryURL != "" {
-		out.DiscoveryURL = &issuer.DiscoveryURL
+	if featureGates.Enabled(features.FeatureGateExternalOIDCWithUpstreamParity) {
+		if issuer.DiscoveryURL != "" {
+			out.DiscoveryURL = &issuer.DiscoveryURL
+		}
 	}
 
 	if len(issuer.CertificateAuthority.Name) > 0 {
@@ -404,11 +407,11 @@ func generateExtraMapping(extraMapping configv1.ExtraMapping) (apiserverv1beta1.
 	return out, nil
 }
 
-func generateClaimValidationRules(claimValidationRules ...configv1.TokenClaimValidationRule) ([]apiserverv1beta1.ClaimValidationRule, error) {
+func generateClaimValidationRules(featureGates featuregates.FeatureGate, claimValidationRules ...configv1.TokenClaimValidationRule) ([]apiserverv1beta1.ClaimValidationRule, error) {
 	out := []apiserverv1beta1.ClaimValidationRule{}
 	errs := []error{}
 	for _, claimValidationRule := range claimValidationRules {
-		rule, err := generateClaimValidationRule(claimValidationRule)
+		rule, err := generateClaimValidationRule(claimValidationRule, featureGates)
 		if err != nil {
 			errs = append(errs, fmt.Errorf("generating claimValidationRule: %v", err))
 			continue
@@ -424,7 +427,7 @@ func generateClaimValidationRules(claimValidationRules ...configv1.TokenClaimVal
 	return out, nil
 }
 
-func generateClaimValidationRule(claimValidationRule configv1.TokenClaimValidationRule) (apiserverv1beta1.ClaimValidationRule, error) {
+func generateClaimValidationRule(claimValidationRule configv1.TokenClaimValidationRule, featureGates featuregates.FeatureGate) (apiserverv1beta1.ClaimValidationRule, error) {
 	out := apiserverv1beta1.ClaimValidationRule{}
 
 	// Currently, the authentications.config.openshift.io CRD only allows setting a claim and required value for the
@@ -439,7 +442,12 @@ func generateClaimValidationRule(claimValidationRule configv1.TokenClaimValidati
 		out.Claim = claimValidationRule.RequiredClaim.Claim
 		out.RequiredValue = claimValidationRule.RequiredClaim.RequiredValue
 	case configv1.TokenValidationRuleExpression:
-		if claimValidationRule.Expression.Expression == "" {
+		if !featureGates.Enabled(features.FeatureGateExternalOIDCWithUpstreamParity) {
+			// skip CEL expression handling if the feature is disabled
+			return apiserverv1beta1.ClaimValidationRule{}, fmt.Errorf(
+				"TokenValidationRuleExpression is not enabled without the feature gate")
+		}
+		if len(claimValidationRule.Expression.Expression) == 0 {
 			return apiserverv1beta1.ClaimValidationRule{}, fmt.Errorf("claimValidationRule.type is %s and expression is not set", configv1.TokenValidationRuleExpression)
 		}
 
@@ -460,24 +468,40 @@ func generateClaimValidationRule(claimValidationRule configv1.TokenClaimValidati
 	return out, nil
 }
 
-func generateUserValidationRules(rules []configv1.TokenUserValidationRule) ([]apiserverv1beta1.UserValidationRule, error) {
+func generateUserValidationRule(rule configv1.TokenUserValidationRule, featureGates featuregates.FeatureGate) (apiserverv1beta1.UserValidationRule, error) {
+	if len(rule.Expression) == 0 {
+		return apiserverv1beta1.UserValidationRule{}, fmt.Errorf("userValidationRule expression must be non-empty")
+	}
+
+	// Optional: only enable user validation rules if a feature gate is active
+	if !featureGates.Enabled(features.FeatureGateExternalOIDCWithUpstreamParity) {
+		return apiserverv1beta1.UserValidationRule{}, fmt.Errorf(
+			"userValidationRule cannot be used without the feature gate")
+	}
+
+	return apiserverv1beta1.UserValidationRule{
+		Expression: rule.Expression,
+		Message:    rule.Message,
+	}, nil
+}
+
+func generateUserValidationRules(featureGates featuregates.FeatureGate, rules []configv1.TokenUserValidationRule) ([]apiserverv1beta1.UserValidationRule, error) {
 	out := []apiserverv1beta1.UserValidationRule{}
 	errs := []error{}
+
 	for _, r := range rules {
-		// Validate the expression is non-empty
-		if len(r.Expression) == 0 {
-			errs = append(errs, fmt.Errorf("userValidationRule expression must be non-empty"))
+		uvr, err := generateUserValidationRule(r, featureGates)
+		if err != nil {
+			errs = append(errs, fmt.Errorf("generating userValidationRule: %v", err))
 			continue
-		}
-		uvr := apiserverv1beta1.UserValidationRule{
-			Expression: r.Expression,
-			Message:    r.Message,
 		}
 		out = append(out, uvr)
 	}
+
 	if len(errs) > 0 {
 		return nil, errors.Join(errs...)
 	}
+
 	return out, nil
 }
 
