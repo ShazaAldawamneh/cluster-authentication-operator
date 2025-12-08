@@ -63,7 +63,6 @@ var (
 				Issuer: configv1.TokenIssuer{
 					CertificateAuthority: configv1.ConfigMapNameReference{Name: "oidc-ca-bundle"},
 					Audiences:            []configv1.TokenAudience{"my-test-aud", "another-aud"},
-					DiscoveryURL:         "https://example.com/.well-known/openid-configuration",
 				},
 				OIDCClients: []configv1.OIDCClientConfig{
 					{
@@ -101,17 +100,11 @@ var (
 						},
 					},
 					{
-						Type: configv1.TokenValidationRuleExpression,
-						Expression: configv1.TokenExpressionRule{
-							Expression: "claims.email.endsWith('@example.com')",
-							Message:    "email domain must be example.com",
+						Type: configv1.TokenValidationRuleRequiredClaim,
+						RequiredClaim: &configv1.TokenRequiredClaim{
+							Claim:         "email",
+							RequiredValue: "test-email",
 						},
-					},
-				},
-				UserValidationRules: []configv1.TokenUserValidationRule{
-					{
-						Expression: "user.groups.exists(g, g == 'system:authenticated')",
-						Message:    "user must be authenticated",
 					},
 				},
 			},
@@ -129,7 +122,6 @@ var (
 					Audiences:            []string{"my-test-aud", "another-aud"},
 					CertificateAuthority: testCertData,
 					AudienceMatchPolicy:  apiserverv1beta1.AudienceMatchPolicyMatchAny,
-					DiscoveryURL:         ptr.To("https://example.com/.well-known/openid-configuration"),
 				},
 				ClaimMappings: apiserverv1beta1.ClaimMappings{
 					Username: apiserverv1beta1.PrefixedClaimOrExpression{
@@ -147,22 +139,17 @@ var (
 						RequiredValue: "test-username",
 					},
 					{
-						Expression: "claims.email.endsWith('@example.com')",
-						Message:    "email domain must be example.com",
-					},
-				},
-				UserValidationRules: []apiserverv1beta1.UserValidationRule{
-					{
-						Expression: "user.groups.exists(g, g == 'system:authenticated')",
-						Message:    "user must be authenticated",
+						Claim:         "email",
+						RequiredValue: "test-email",
 					},
 				},
 			},
 		},
 	}
 
-	baseAuthConfigJSON = fmt.Sprintf(`{"kind":"%s","apiVersion":"apiserver.config.k8s.io/v1beta1","jwt":[{"issuer":{"url":"$URL","certificateAuthority":"%s","audiences":["my-test-aud","another-aud"],"audienceMatchPolicy":"MatchAny"},"claimValidationRules":[{"claim":"username","requiredValue":"test-username"},{"claim":"email","requiredValue":"test-email"},{"expression":"claims.email.endsWith('@example.com')","message":"email domain must be example.com"}],"userValidationRules":[{"expression":"user.groups.exists(g, g == 'system:authenticated')","message":"user must be authenticated"}],"claimMappings":{"username":{"claim":"username","prefix":"oidc-user:"},"groups":{"claim":"groups","prefix":"oidc-group:"},"uid":{}}}]}`, kindAuthenticationConfiguration, strings.ReplaceAll(testCertData, "\n", "\\n"))
-	baseAuthConfigCM   = corev1.ConfigMap{
+	baseAuthConfigJSON = fmt.Sprintf(`{"kind":"%s","apiVersion":"apiserver.config.k8s.io/v1beta1","jwt":[{"issuer":{"url":"$URL","certificateAuthority":"%s","audiences":["my-test-aud","another-aud"],"audienceMatchPolicy":"MatchAny"},"claimValidationRules":[{"claim":"username","requiredValue":"test-username"},{"claim":"email","requiredValue":"test-email"}],"claimMappings":{"username":{"claim":"username","prefix":"oidc-user:"},"groups":{"claim":"groups","prefix":"oidc-group:"},"uid":{}}}]}`, kindAuthenticationConfiguration, strings.ReplaceAll(testCertData, "\n", "\\n"))
+
+	baseAuthConfigCM = corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      targetAuthConfigCMName,
 			Namespace: managedNamespace,
@@ -706,7 +693,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 						copy.Spec.OIDCProviders[i].ClaimValidationRules = append(
 							copy.Spec.OIDCProviders[i].ClaimValidationRules,
 							configv1.TokenClaimValidationRule{
-								Type:          configv1.TokenValidationRuleRequiredClaim, // updated constant
+								Type:          configv1.TokenValidationRuleRequiredClaim,
 								RequiredClaim: nil,
 							},
 						)
@@ -717,7 +704,8 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
-					features.FeatureGateExternalOIDCWithUpstreamParity},
+					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+				},
 			),
 		},
 		{
@@ -1080,10 +1068,8 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			}),
 			expectError: true,
 			featureGates: featuregates.NewFeatureGate(
+				[]configv1.FeatureGateName{features.FeatureGateExternalOIDCWithUpstreamParity},
 				[]configv1.FeatureGateName{},
-				[]configv1.FeatureGateName{
-					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
-				},
 			),
 		},
 		{
@@ -1095,10 +1081,8 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			}),
 			expectError: true,
 			featureGates: featuregates.NewFeatureGate(
+				[]configv1.FeatureGateName{features.FeatureGateExternalOIDCWithUpstreamParity},
 				[]configv1.FeatureGateName{},
-				[]configv1.FeatureGateName{
-					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
-				},
 			),
 		},
 		{
@@ -1116,10 +1100,8 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			}),
 			expectError: true,
 			featureGates: featuregates.NewFeatureGate(
+				[]configv1.FeatureGateName{features.FeatureGateExternalOIDCWithUpstreamParity},
 				[]configv1.FeatureGateName{},
-				[]configv1.FeatureGateName{
-					features.FeatureGateExternalOIDCWithUpstreamParity,
-				},
 			),
 		},
 		{
@@ -1134,10 +1116,8 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			}),
 			expectError: true,
 			featureGates: featuregates.NewFeatureGate(
+				[]configv1.FeatureGateName{features.FeatureGateExternalOIDCWithUpstreamParity},
 				[]configv1.FeatureGateName{},
-				[]configv1.FeatureGateName{
-					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
-				},
 			),
 		},
 	} {
