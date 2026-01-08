@@ -241,6 +241,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -251,6 +252,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -263,6 +265,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -275,6 +278,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -289,6 +293,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -308,6 +313,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -326,6 +332,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -344,6 +351,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -366,6 +374,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -389,6 +398,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -424,6 +434,7 @@ func TestExternalOIDCController_sync(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 				[]configv1.FeatureGateName{},
 			),
@@ -611,6 +622,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -623,6 +635,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -635,6 +648,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -657,6 +671,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -678,6 +693,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -705,6 +721,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -728,6 +745,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -752,6 +770,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -785,6 +804,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -818,6 +838,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -851,6 +872,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -887,6 +909,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -907,6 +930,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 				[]configv1.FeatureGateName{},
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 			),
 		},
@@ -925,6 +949,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 				[]configv1.FeatureGateName{},
 			),
@@ -946,6 +971,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 				[]configv1.FeatureGateName{},
 			),
@@ -975,6 +1001,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 				[]configv1.FeatureGateName{},
 			),
@@ -997,6 +1024,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 				[]configv1.FeatureGateName{},
 			),
@@ -1019,6 +1047,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 				[]configv1.FeatureGateName{},
 			),
@@ -1055,6 +1084,7 @@ func TestExternalOIDCController_generateAuthConfig(t *testing.T) {
 			featureGates: featuregates.NewFeatureGate(
 				[]configv1.FeatureGateName{
 					features.FeatureGateExternalOIDCWithAdditionalClaimMappings,
+					features.FeatureGateExternalOIDCWithUpstreamParity,
 				},
 				[]configv1.FeatureGateName{},
 			),
